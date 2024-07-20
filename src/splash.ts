@@ -6,10 +6,13 @@ export default class Splash {
   height;
   width;
   renderer;
+  uTime;
+  horizontalPosition;
 
   constructor() {
     this.height = window.innerHeight;
     this.width = window.innerWidth;
+    this.horizontalPosition = 0;
 
     this.scene = new THREE.Scene();
 
@@ -24,6 +27,8 @@ export default class Splash {
     this.renderer = new THREE.WebGLRenderer();
     this.renderer.render(this.scene, this.camera);
     document.getElementById("app")?.appendChild(this.renderer.domElement);
+
+    this.uTime = new THREE.Clock();
   }
 
   middle = (): void => {
@@ -36,6 +41,31 @@ export default class Splash {
 
     const box = new THREE.Mesh(geometry, material);
     this.scene.add(box);
+  };
+
+  horizontal = (): void => {
+    requestAnimationFrame(this.horizontal);
+
+    if (this.horizontalPosition < 50)
+      this.horizontalPosition +=
+        this.uTime.getElapsedTime() * Math.sin(0.75) * 2;
+
+    const material = new THREE.MeshBasicMaterial({
+      color: new THREE.Color(0xf5f5f5),
+    });
+
+    for (let i = -1; i <= 1; i += 2) {
+      const points = [];
+      points.push(new THREE.Vector3(0, i, 0));
+      points.push(new THREE.Vector3(this.horizontalPosition, i, 0));
+
+      const geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+      const line = new THREE.Line(geometry, material);
+
+      line.position.x = -25;
+      this.scene.add(line);
+    }
   };
 
   animate = (): void => {
