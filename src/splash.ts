@@ -7,12 +7,23 @@ export default class Splash {
   width;
   renderer;
   uTime;
-  horizontalPosition;
+  initial: {
+    horizontal: number;
+    vertical: number;
+  };
+  completed: {
+    horizontal: boolean;
+  };
 
   constructor() {
     this.height = window.innerHeight;
     this.width = window.innerWidth;
-    this.horizontalPosition = 0;
+    this.initial = {
+      horizontal: 0,
+      vertical: 0,
+    };
+    this.completed = { horizontal: false };
+    this.renderer = new THREE.WebGLRenderer();
 
     this.scene = new THREE.Scene();
 
@@ -22,18 +33,60 @@ export default class Splash {
       0.1,
       1000
     );
-    this.camera.position.z = 15;
-
-    this.renderer = new THREE.WebGLRenderer();
-    this.renderer.render(this.scene, this.camera);
-    document.getElementById("app")?.appendChild(this.renderer.domElement);
 
     this.uTime = new THREE.Clock();
+
+    this.initializeRenderer();
   }
+
+  start = () => {
+    this.animate();
+    this.setupCamera();
+    this.middle();
+    this.horizontal();
+  };
+
+  initializeRenderer = () => {
+    this.renderer.render(this.scene, this.camera);
+    this.renderer.setSize(this.width, this.height);
+    document.getElementById("app")?.appendChild(this.renderer.domElement);
+  };
+
+  setupCamera = () => {
+    this.camera.position.z = 50;
+  };
+
+  animate = () => {
+    requestAnimationFrame(this.animate);
+
+    this.height = window.innerHeight;
+    this.width = window.innerWidth;
+
+    this.renderer.setSize(this.width, this.height);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.renderer.render(this.scene, this.camera);
+    this.renderer.setClearColor(new THREE.Color(0x161616));
+  };
+
+  addResizeListener = () => {
+    window.addEventListener("resize", () => {
+      this.onWindowResize();
+    });
+  };
+
+  onWindowResize = () => {
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+
+    this.camera.aspect = this.width / this.height;
+    this.camera.updateProjectionMatrix();
+
+    this.renderer.setSize(this.width, this.height);
+  };
 
   middle = (): void => {
     const texture = new THREE.TextureLoader().load("/logo.png");
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    const geometry = new THREE.BoxGeometry(3, 3, 3);
     const material = new THREE.MeshBasicMaterial({
       map: texture,
       transparent: true,
@@ -46,9 +99,33 @@ export default class Splash {
   horizontal = (): void => {
     requestAnimationFrame(this.horizontal);
 
-    if (this.horizontalPosition < 50)
-      this.horizontalPosition +=
-        this.uTime.getElapsedTime() * Math.sin(0.75) * 2;
+    if (this.initial.horizontal < 200)
+      this.initial.horizontal +=
+        this.uTime.getElapsedTime() * Math.sin(1.75) * 1.5;
+
+    const material = new THREE.MeshBasicMaterial({
+      color: new THREE.Color(0xf5f5f5),
+    });
+
+    for (let i = -2; i <= 2; i += 4) {
+      const points = [];
+      points.push(new THREE.Vector3(0, i, 0));
+      points.push(new THREE.Vector3(this.initial.horizontal, i, 0));
+
+      const geometry = new THREE.BufferGeometry().setFromPoints(points);
+
+      const line = new THREE.Line(geometry, material);
+
+      line.position.x = -100;
+      this.scene.add(line);
+    }
+  };
+
+  vertical = (): void => {
+    requestAnimationFrame(this.vertical);
+
+    if (this.initial.vertical > -50)
+      this.initial.vertical -= this.uTime.getElapsedTime() * Math.sin(0.75) * 2;
 
     const material = new THREE.MeshBasicMaterial({
       color: new THREE.Color(0xf5f5f5),
@@ -56,27 +133,15 @@ export default class Splash {
 
     for (let i = -1; i <= 1; i += 2) {
       const points = [];
-      points.push(new THREE.Vector3(0, i, 0));
-      points.push(new THREE.Vector3(this.horizontalPosition, i, 0));
+      points.push(new THREE.Vector3(i, 0, 0));
+      points.push(new THREE.Vector3(i, this.initial.vertical, 0));
 
       const geometry = new THREE.BufferGeometry().setFromPoints(points);
 
       const line = new THREE.Line(geometry, material);
 
-      line.position.x = -25;
+      line.position.y = 60;
       this.scene.add(line);
     }
-  };
-
-  animate = (): void => {
-    requestAnimationFrame(this.animate);
-
-    this.height = window.innerHeight;
-    this.width = window.innerWidth;
-
-    this.renderer.setSize(this.width, this.height);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    this.renderer.render(this.scene, this.camera);
-    this.renderer.setClearColor(new THREE.Color(0x161616));
   };
 }
