@@ -11,9 +11,7 @@ export default class Splash {
     horizontal: number;
     vertical: number;
   };
-  completed: {
-    horizontal: boolean;
-  };
+  meshArray: THREE.BufferGeometry<THREE.NormalBufferAttributes>[];
 
   constructor() {
     this.height = window.innerHeight;
@@ -22,7 +20,7 @@ export default class Splash {
       horizontal: 0,
       vertical: 0,
     };
-    this.completed = { horizontal: false };
+    this.meshArray = [];
     this.renderer = new THREE.WebGLRenderer();
 
     this.scene = new THREE.Scene();
@@ -45,6 +43,7 @@ export default class Splash {
     this.middle();
     this.horizontal();
     this.vertical();
+    this.zoom();
   };
 
   initializeRenderer = () => {
@@ -98,14 +97,13 @@ export default class Splash {
   };
 
   horizontal = () => {
-    requestAnimationFrame(this.horizontal);
-
-    if (this.initial.horizontal < 200)
-      this.initial.horizontal +=
-        this.uTime.getElapsedTime() * Math.sin(1.75) * 1.5;
+    if (this.initial.horizontal < 170) {
+      requestAnimationFrame(this.horizontal);
+      this.initial.horizontal += Math.sin(1.75) * 1.5;
+    }
 
     const material = new THREE.MeshBasicMaterial({
-      color: new THREE.Color(0xf5f5f5),
+      color: new THREE.Color(0xd4d4d4),
     });
 
     for (let i = -2; i <= 2; i += 4) {
@@ -117,6 +115,8 @@ export default class Splash {
 
       const line = new THREE.Line(geometry, material);
 
+      this.meshArray.push(geometry);
+
       line.position.x = -85;
       this.scene.add(line);
     }
@@ -125,12 +125,11 @@ export default class Splash {
   vertical = () => {
     requestAnimationFrame(this.vertical);
 
-    if (this.initial.vertical > -100)
-      this.initial.vertical -=
-        this.uTime.getElapsedTime() * Math.sin(1.75) * 1.5;
+    if (this.initial.vertical > -80 && this.uTime.getElapsedTime() > 1)
+      this.initial.vertical -= Math.sin(1.75) * 1.5;
 
     const material = new THREE.MeshBasicMaterial({
-      color: new THREE.Color(0xf5f5f5),
+      color: new THREE.Color(0xd4d4d4),
     });
 
     for (let i = -2; i <= 2; i += 4) {
@@ -142,8 +141,15 @@ export default class Splash {
 
       const line = new THREE.Line(geometry, material);
 
-      line.position.y = 50;
+      line.position.y = 40;
       this.scene.add(line);
+    }
+  };
+
+  zoom = () => {
+    requestAnimationFrame(this.zoom);
+    if (this.uTime.getElapsedTime() > 2 && this.camera.position.z > 4) {
+      this.camera.position.z -= 1;
     }
   };
 }
