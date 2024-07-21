@@ -44,6 +44,7 @@ export default class Splash {
     this.setupCamera();
     this.middle();
     this.horizontal();
+    this.vertical();
   };
 
   initializeRenderer = () => {
@@ -84,7 +85,7 @@ export default class Splash {
     this.renderer.setSize(this.width, this.height);
   };
 
-  middle = (): void => {
+  middle = () => {
     const texture = new THREE.TextureLoader().load("/logo.png");
     const geometry = new THREE.BoxGeometry(3, 3, 3);
     const material = new THREE.MeshBasicMaterial({
@@ -96,7 +97,7 @@ export default class Splash {
     this.scene.add(box);
   };
 
-  horizontal = (): void => {
+  horizontal = () => {
     requestAnimationFrame(this.horizontal);
 
     if (this.initial.horizontal < 200)
@@ -116,22 +117,23 @@ export default class Splash {
 
       const line = new THREE.Line(geometry, material);
 
-      line.position.x = -100;
+      line.position.x = -85;
       this.scene.add(line);
     }
   };
 
-  vertical = (): void => {
+  vertical = () => {
     requestAnimationFrame(this.vertical);
 
-    if (this.initial.vertical > -50)
-      this.initial.vertical -= this.uTime.getElapsedTime() * Math.sin(0.75) * 2;
+    if (this.initial.vertical > -100)
+      this.initial.vertical -=
+        this.uTime.getElapsedTime() * Math.sin(1.75) * 1.5;
 
     const material = new THREE.MeshBasicMaterial({
       color: new THREE.Color(0xf5f5f5),
     });
 
-    for (let i = -1; i <= 1; i += 2) {
+    for (let i = -2; i <= 2; i += 4) {
       const points = [];
       points.push(new THREE.Vector3(i, 0, 0));
       points.push(new THREE.Vector3(i, this.initial.vertical, 0));
@@ -140,7 +142,7 @@ export default class Splash {
 
       const line = new THREE.Line(geometry, material);
 
-      line.position.y = 60;
+      line.position.y = 50;
       this.scene.add(line);
     }
   };
