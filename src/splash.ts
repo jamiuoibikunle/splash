@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { GUI } from "dat.gui";
 
 export default class Splash {
   scene;
@@ -85,14 +86,25 @@ export default class Splash {
   };
 
   middle = () => {
+    requestAnimationFrame(this.middle);
+
+    let visible = false;
+
+    if (this.uTime.getElapsedTime() > 1 && this.uTime.getElapsedTime() < 2) {
+      visible = true;
+    } else {
+      visible = false;
+    }
+
     const texture = new THREE.TextureLoader().load("/logo.png");
-    const geometry = new THREE.BoxGeometry(3, 3, 3);
+    const geometry = new THREE.BoxGeometry(2, 2, 2);
     const material = new THREE.MeshBasicMaterial({
       map: texture,
       transparent: true,
     });
 
     const box = new THREE.Mesh(geometry, material);
+
     this.scene.add(box);
   };
 
@@ -148,8 +160,15 @@ export default class Splash {
 
   zoom = () => {
     requestAnimationFrame(this.zoom);
-    if (this.uTime.getElapsedTime() > 2 && this.camera.position.z > 4) {
+    if (this.uTime.getElapsedTime() > 2 && this.camera.position.z > 1) {
       this.camera.position.z -= 1;
     }
+
+    if (this.camera.position.z == 1) this.unmount();
+  };
+
+  unmount = () => {
+    this.renderer.dispose();
+    this.scene.clear();
   };
 }
