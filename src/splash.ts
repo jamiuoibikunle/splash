@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { GUI } from "dat.gui";
 
 export default class Splash {
   scene;
@@ -7,6 +6,7 @@ export default class Splash {
   height;
   width;
   renderer;
+  container;
   uTime;
   initial: {
     horizontal: number;
@@ -23,6 +23,7 @@ export default class Splash {
     };
     this.meshArray = [];
     this.renderer = new THREE.WebGLRenderer();
+    this.container = document.getElementById("app");
 
     this.scene = new THREE.Scene();
 
@@ -50,7 +51,7 @@ export default class Splash {
   initializeRenderer = () => {
     this.renderer.render(this.scene, this.camera);
     this.renderer.setSize(this.width, this.height);
-    document.getElementById("app")?.appendChild(this.renderer.domElement);
+    this.container?.appendChild(this.renderer.domElement);
   };
 
   setupCamera = () => {
@@ -168,6 +169,8 @@ export default class Splash {
   };
 
   unmount = () => {
+    this.container?.removeChild(this.renderer.domElement);
+
     this.renderer.dispose();
     this.scene.clear();
   };
