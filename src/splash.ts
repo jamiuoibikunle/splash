@@ -7,6 +7,7 @@ export default class Splash {
   width;
   renderer;
   container;
+  visible;
   uTime;
   initial: {
     horizontal: number;
@@ -35,6 +36,8 @@ export default class Splash {
     );
 
     this.uTime = new THREE.Clock();
+
+    this.visible = true;
 
     this.initializeRenderer();
   }
@@ -169,9 +172,13 @@ export default class Splash {
   };
 
   unmount = () => {
-    this.container?.removeChild(this.renderer.domElement);
+    if (this.visible) {
+      this.container?.removeChild(this.renderer.domElement);
 
-    this.renderer.dispose();
-    this.scene.clear();
+      this.renderer.dispose();
+      this.scene.clear();
+    }
+
+    this.visible = false;
   };
 }
